@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Use Cases for Digital Centers · UNDP Bangladesh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#8b7660;--bg-deep:#7c6650;
+    --card:#faf6ef;--panel:#f1e9da;--panel-line:#e4d8c2;
+    --ink:#382c1e;--ink-soft:#574734;--muted:#8a7a62;
+    --line:#e6dcc8;--accent:#b06a36;--accent-deep:#8a4f25;
+    --gold:#c08a3e;--sage:#6b7a4f;--alert:#b15440;
+    --shadow:0 18px 40px -22px rgba(40,28,14,.55), 0 4px 12px -8px rgba(40,28,14,.4);
+    --radius:20px;
+    --ff-display:"Fraunces", Georgia, serif;
+    --ff-body:"Hanken Grotesk", system-ui, sans-serif;
+    --ff-bn:"Hind Siliguri","Hanken Grotesk", sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:var(--ff-body);color:var(--ink);background:var(--bg);overflow:hidden;-webkit-font-smoothing:antialiased}
+  body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+    background-size:46px 46px;mask-image:radial-gradient(circle at 50% 35%,#000 0%,transparent 80%)}
+  body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.06;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")}
+
+  #deck{position:fixed;inset:0;z-index:1}
+  #track{display:flex;height:100%;transition:transform .7s cubic-bezier(.7,.02,.2,1)}
+  .slide{flex:0 0 100%;width:100vw;height:100vh;overflow-y:auto;overflow-x:hidden;
+    padding:74px clamp(20px,5vw,80px) 92px;display:flex;flex-direction:column;justify-content:center;
+    scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.4) transparent}
+  .slide::-webkit-scrollbar{width:8px}.slide::-webkit-scrollbar-thumb{background:rgba(255,255,255,.35);border-radius:8px}
+  .wrap{width:100%;max-width:1180px;margin:0 auto}
+
+  #topbar{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;gap:18px;padding:16px clamp(18px,4vw,40px);color:#f3ead9}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:700;letter-spacing:.02em}
+  .brand .un{width:30px;height:30px;border:1.5px solid #efe5d2;border-radius:5px;display:grid;place-items:center;font-family:var(--ff-display);font-size:11px;line-height:1;color:#efe5d2;font-weight:600;text-align:center}
+  .brand small{display:block;font-weight:500;font-size:11px;opacity:.7;letter-spacing:.14em;text-transform:uppercase}
+  #progress-wrap{flex:1;height:4px;background:rgba(255,255,255,.18);border-radius:99px;overflow:hidden;max-width:380px;margin-left:auto}
+  #progress{height:100%;width:8%;background:linear-gradient(90deg,var(--gold),#f0d49a);border-radius:99px;transition:width .6s cubic-bezier(.7,.02,.2,1)}
+  #counter{font-variant-numeric:tabular-nums;font-weight:700;font-size:13px;letter-spacing:.08em;opacity:.9;min-width:54px;text-align:right}
+
+  .navbtn{position:fixed;bottom:26px;z-index:30;width:50px;height:50px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(40,28,14,.28);backdrop-filter:blur(6px);color:#f3ead9;font-size:20px;cursor:pointer;display:grid;place-items:center;transition:transform .25s,background .25s,opacity .25s}
+  .navbtn:hover{background:rgba(40,28,14,.5);transform:translateY(-2px)}
+  .navbtn:disabled{opacity:.3;cursor:default;transform:none}
+  #prev{right:88px}#next{right:28px}
+  #dots{position:fixed;bottom:34px;left:50%;transform:translateX(-50%);z-index:30;display:flex;gap:9px}
+  #dots button{width:8px;height:8px;border-radius:50%;border:none;background:rgba(255,255,255,.32);cursor:pointer;padding:0;transition:all .3s}
+  #dots button.on{width:26px;border-radius:99px;background:var(--gold)}
+  .hint{position:fixed;bottom:30px;left:28px;z-index:30;color:#efe5d2;opacity:.55;font-size:12px}
+  .hint kbd{font-family:var(--ff-body);background:rgba(255,255,255,.16);border-radius:5px;padding:1px 6px;font-size:11px}
+
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.5)}
+  .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--accent)}
+  .eyebrow::before{content:"";width:26px;height:1.5px;background:var(--accent);display:inline-block}
+  h1,h2,h3{font-family:var(--ff-display);font-weight:500;letter-spacing:-.01em;line-height:1.05}
+  .bn{font-family:var(--ff-bn)}
+
+  .reveal{opacity:0;transform:translateY(22px)}
+  .slide.is-active .reveal{animation:rise .8s cubic-bezier(.2,.7,.2,1) forwards}
+  .slide.is-active .reveal.d1{animation-delay:.06s}.slide.is-active .reveal.d2{animation-delay:.16s}
+  .slide.is-active .reveal.d3{animation-delay:.28s}.slide.is-active .reveal.d4{animation-delay:.40s}
+  .slide.is-active .reveal.d5{animation-delay:.52s}.slide.is-active .reveal.d6{animation-delay:.64s}
+  @keyframes rise{to{opacity:1;transform:none}}
+
+  #s-cover .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center}
+  .cover-kicker{color:#f0e6d4;font-weight:600;letter-spacing:.22em;text-transform:uppercase;font-size:12.5px;opacity:.85;margin-bottom:26px}
+  #s-cover h1{font-size:clamp(40px,6.2vw,86px);color:#fbf5ea;line-height:.98}
+  #s-cover h1 em{font-style:italic;color:#f3d9a8}
+  .cover-sub{color:#efe3cf;font-size:clamp(15px,1.6vw,19px);line-height:1.6;max-width:560px;margin-top:24px;opacity:.92}
+  .cover-meta{margin-top:40px;display:flex;gap:14px;flex-wrap:wrap}
+  .cover-meta .chip{background:rgba(250,246,239,.12);border:1px solid rgba(255,255,255,.22);color:#f3ead9;padding:8px 16px;border-radius:99px;font-size:13px;font-weight:600;backdrop-filter:blur(4px)}
+  .cover-art{padding:30px;background:linear-gradient(160deg,#faf6ef,#f0e7d6);position:relative;overflow:hidden}
+  .cover-art .tag{position:absolute;top:18px;right:20px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .float{animation:float 4s ease-in-out infinite}@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+
+  .persona{display:grid;grid-template-columns:300px 1fr;gap:38px;align-items:stretch}
+  .persona-card{padding:30px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .persona-card .name{font-family:var(--ff-display);font-size:30px;color:var(--ink)}
+  .persona-card .role{color:var(--accent);font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+  .persona-facts{list-style:none;font-size:13.5px;color:var(--ink-soft);line-height:1.5;width:100%}
+  .persona-facts li{padding:9px 0;border-top:1px dashed var(--panel-line);display:flex;justify-content:space-between;gap:8px}
+  .persona-facts li span:first-child{color:var(--muted);font-weight:600}
+  .pain-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;align-content:start}
+  .pain{padding:22px;border-radius:16px;background:var(--card);box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.5)}
+  .pain h4{font-family:var(--ff-body);font-weight:800;font-size:15px;color:var(--ink);margin-bottom:7px;display:flex;align-items:center;gap:9px}
+  .pain .ic{width:30px;height:30px;border-radius:9px;background:#f3e3d2;display:grid;place-items:center;flex:none;color:var(--accent)}
+  .pain p{font-size:13px;color:var(--ink-soft);line-height:1.5}
+
+  .qrow{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+  .qstep{padding:22px 18px;background:var(--card);border-radius:16px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.5)}
+  .qstep .num{font-family:var(--ff-display);font-size:34px;color:var(--accent);opacity:.35;line-height:1}
+  .qstep h4{font-family:var(--ff-body);font-weight:800;font-size:14px;margin:10px 0 7px;color:var(--ink)}
+  .qstep p{font-size:12.5px;color:var(--ink-soft);line-height:1.45}
+  .qstep:nth-child(4){background:#eef0e3}.qstep:nth-child(4) .num{color:var(--sage)}
+  .section-head{margin-bottom:28px}
+  .section-head h2{font-size:clamp(28px,3.6vw,46px);color:#fbf5ea}
+  .section-head p{color:#efe3cf;font-size:15px;line-height:1.6;max-width:700px;margin-top:14px;opacity:.92}
+
+  .uc-card{position:relative;overflow:hidden;padding:34px clamp(26px,3.6vw,46px);min-height:78vh;
+    display:grid;grid-template-columns:minmax(0,540px) minmax(0,1fr);gap:clamp(22px,3.4vw,54px);align-items:center;
+    background:var(--card);background-image:radial-gradient(#e9dec8 1.1px,transparent 1.1px);background-size:24px 24px}
+  .arch{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;min-width:0}
+  .arch svg{width:100%;height:auto;max-height:74vh}
+  .arch-scrim{display:none}
+  .arch-tag{position:absolute;top:20px;right:26px;z-index:3;font-size:10.5px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
+  .arch-tag::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--accent);box-shadow:0 0 0 4px rgba(176,106,54,.15)}
+  .uc-layer{position:relative;z-index:3;display:flex;flex-direction:column;gap:14px;min-width:0}
+  .uc-num{font-family:var(--ff-display);font-size:14px;color:var(--accent);font-weight:600;letter-spacing:.05em}
+  .uc-title{font-size:clamp(25px,3vw,40px);color:var(--ink);line-height:1.04;margin-top:4px}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .chips .c{font-size:11.5px;font-weight:700;padding:5px 12px;border-radius:99px;background:rgba(176,106,54,.12);border:1px solid rgba(176,106,54,.28);color:var(--accent-deep)}
+  .chips .c.gov{background:rgba(177,84,64,.12);border-color:rgba(177,84,64,.3);color:#9c4031}
+
+  .glass{background:rgba(252,249,243,.92);border:1px solid #ece0c8;border-radius:16px;box-shadow:0 10px 26px -20px rgba(40,28,14,.5)}
+  .story2{padding:18px 22px}
+  .story2 .q{font-family:var(--ff-display);font-style:italic;font-size:19px;line-height:1.42;color:var(--ink)}
+  .story2 .q b{font-style:normal;font-weight:600;color:var(--accent-deep)}
+  .story2 .scene{margin-top:13px;font-size:13.5px;color:var(--ink-soft);line-height:1.55;border-top:1px solid var(--line);padding-top:13px}
+  .story2 .scene strong{color:var(--ink);font-weight:700}
+  .minis{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .mini2{padding:15px 17px}
+  .mini2.human{background:rgba(240,241,230,.82)}
+  .mini2 h5{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;margin-bottom:10px}
+  .mini2.ai h5{color:var(--accent)}.mini2.human h5{color:var(--sage)}
+  .mini2 ul{list-style:none;display:flex;flex-direction:column;gap:7px}
+  .mini2 li{font-size:12.5px;color:var(--ink-soft);line-height:1.35;padding-left:18px;position:relative}
+  .mini2.ai li::before{content:"";position:absolute;left:0;top:5px;width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px rgba(176,106,54,.15)}
+  .mini2.human li::before{content:"✓";position:absolute;left:0;top:-1px;color:var(--sage);font-weight:800;font-size:12px}
+  .ailabel{padding:14px 18px;background:#2f2519;border-radius:14px;color:#f3e7d3;display:flex;gap:13px;align-items:flex-start}
+  .ailabel .badge{flex:none;background:var(--gold);color:#2f2519;font-weight:800;font-size:9.5px;letter-spacing:.08em;padding:5px 9px;border-radius:7px;text-transform:uppercase;margin-top:1px}
+  .ailabel p{font-size:13px;line-height:1.48}.ailabel p b{color:#f6d8a3}
+
+  .arch .edge{fill:none;stroke:var(--accent);stroke-opacity:.5;stroke-width:2;stroke-dasharray:6 7}
+  .slide.is-active .arch .flow{animation:dash 1s linear infinite}
+  @keyframes dash{to{stroke-dashoffset:-26}}
+  .arch .nb{fill:#fffdf9;stroke:#d8c6a4;stroke-width:1.5}
+  .arch .nb.ai{fill:#2f2519;stroke:#2f2519}
+  .arch .nb.ext{fill:#f4ead8;stroke:#c7b48f;stroke-dasharray:6 5}
+  .arch .nb.store{fill:#f4e7d4;stroke:#d8c6a4}
+  .arch .nb.hm{fill:#eef0e3;stroke:#b9c19b}
+  .arch .nb.out{fill:#f3e3d2;stroke:#caa877}
+  .arch .nt{font-family:'Hanken Grotesk',sans-serif;fill:#4a3c2a;font-size:16px;font-weight:700}
+  .arch .nt.sub{font-size:13px;font-weight:500;fill:#7a6a52}
+  .arch .nt.ai{fill:#f3e7d3}.arch .nt.ai.sub{fill:#c9b89a}
+  .arch .nt.hm{fill:#46512f}.arch .tag{font-size:11px;font-weight:800;letter-spacing:.12em;fill:#a87f4d}
+  .arch .pk{filter:drop-shadow(0 0 3px rgba(176,106,54,.55))}
+  .slide.is-active .arch .core{animation:corepulse 2.6s ease-in-out infinite}
+  @keyframes corepulse{0%,100%{filter:none}50%{filter:drop-shadow(0 0 11px rgba(176,106,54,.4))}}
+
+  .more-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .more{padding:26px}.more .n{font-family:var(--ff-display);font-size:30px;color:var(--accent);opacity:.4}
+  .more h4{font-family:var(--ff-body);font-weight:800;font-size:16px;margin:6px 0 10px;color:var(--ink)}
+  .more p{font-size:13px;color:var(--ink-soft);line-height:1.5}
+  .more .ai{margin-top:14px;font-size:12px;color:var(--accent-deep);font-weight:600;background:#f5e7d6;padding:8px 12px;border-radius:9px;line-height:1.4}
+  .road{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .road .step{padding:28px;position:relative;overflow:hidden}
+  .road .rank{position:absolute;top:-12px;right:8px;font-family:var(--ff-display);font-size:96px;color:var(--accent);opacity:.10;line-height:1}
+  .road .step .p{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+  .road .step h4{font-family:var(--ff-body);font-weight:800;font-size:18px;margin:10px 0;color:var(--ink)}
+  .road .step p.r{font-size:13px;color:var(--ink-soft);line-height:1.55}
+  .road .step.first{background:#2f2519;color:#f3e7d3}.road .step.first h4{color:#fbf5ea}.road .step.first p.r{color:#e6d6bd}
+  .road .step.first .p{color:var(--gold)}.road .step.first .rank{color:#fff;opacity:.08}
+  #s-end .wrap{text-align:center}
+  #s-end h2{font-size:clamp(34px,5vw,66px);color:#fbf5ea;line-height:1.02}#s-end h2 em{font-style:italic;color:#f3d9a8}
+  #s-end p{color:#efe3cf;font-size:17px;margin-top:22px;opacity:.9}
+  .end-stats{display:flex;gap:40px;justify-content:center;margin-top:46px;flex-wrap:wrap}
+  .end-stats .st .v{font-family:var(--ff-display);font-size:54px;color:#f3d9a8}
+  .end-stats .st .l{color:#efe3cf;font-size:13px;letter-spacing:.08em;text-transform:uppercase;opacity:.8;margin-top:4px}
+
+  @media (max-width:920px){
+    #s-cover .wrap,.persona{grid-template-columns:1fr;gap:24px}
+    .qrow{grid-template-columns:repeat(2,1fr)}.more-grid,.road{grid-template-columns:1fr}
+    .uc-card{grid-template-columns:1fr;gap:22px}.minis{grid-template-columns:1fr}
+    .slide{padding:88px 18px 108px;justify-content:flex-start}#prev{right:74px}
+  }
+  /* ===== Bangla app preview ===== */
+  #s-demo .wrap{display:block}
+  #s-demo h2{color:#fbf5ea}
+  .demo-grid{display:grid;grid-template-columns:auto 1fr;gap:clamp(28px,4vw,60px);align-items:center;margin-top:22px}
+  .phone{width:298px;max-width:80vw;margin:0 auto;background:#2f2519;border-radius:42px;padding:12px;position:relative;
+    box-shadow:0 34px 72px -28px rgba(20,12,4,.85),0 0 0 2px rgba(255,255,255,.06) inset}
+  .phone::before{content:"";position:absolute;top:20px;left:50%;transform:translateX(-50%);width:92px;height:7px;border-radius:99px;background:#000;opacity:.45;z-index:6}
+  .scr{background:#f2ead9;border-radius:31px;overflow:hidden;height:560px;display:flex;flex-direction:column}
+  .app-top{background:linear-gradient(135deg,#b06a36,#8a4f25);color:#fff;padding:32px 16px 14px;display:flex;align-items:center;gap:11px}
+  .app-top .av{width:40px;height:40px;border-radius:50%;background:#2f2519;display:grid;place-items:center;color:#f3d9a8;font-weight:800;font-size:14px;flex:none}
+  .app-top .nm{font-family:var(--ff-bn);font-weight:600;font-size:15px;line-height:1.15}
+  .app-top .stt{font-size:10.5px;opacity:.9;display:flex;align-items:center;gap:5px;margin-top:2px;font-family:var(--ff-bn)}
+  .app-top .stt i{width:7px;height:7px;border-radius:50%;background:#9be29b;display:inline-block}
+  .chat{flex:1;overflow-y:auto;padding:16px 13px 18px;display:flex;flex-direction:column;gap:9px;scrollbar-width:none}
+  .chat::-webkit-scrollbar{display:none}
+  .row{display:flex;flex-direction:column;max-width:88%;opacity:0;transform:translateY(10px);transition:opacity .45s ease,transform .45s ease}
+  .row.show{opacity:1;transform:none}
+  .row.user{align-self:flex-end;align-items:flex-end}
+  .row.ai{align-self:flex-start;align-items:flex-start}
+  .row.note{align-self:center;align-items:center;max-width:96%}
+  .bub{font-family:var(--ff-bn);font-size:14px;line-height:1.5;padding:9px 13px;border-radius:16px}
+  .user .bub{background:#b06a36;color:#fff;border-bottom-right-radius:5px}
+  .ai .bub{background:#fff;color:#382c1e;border:1px solid #e7dcc8;border-bottom-left-radius:5px}
+  .gloss{font-family:var(--ff-body);font-size:10px;font-style:italic;color:#9a8a70;margin-top:3px;padding:0 4px}
+  .note .bub{background:#eef0e3;color:#46512f;border:1px solid #cdd6b8;font-size:12.5px;font-weight:600;border-radius:99px;padding:7px 15px;font-family:var(--ff-bn)}
+  .card-list{margin-top:7px;background:#faf4e8;border:1px solid #ece0c8;border-radius:12px;padding:10px 12px;width:100%}
+  .card-list .h{font-family:var(--ff-bn);font-size:11.5px;font-weight:600;color:#8a4f25;margin-bottom:6px}
+  .card-list ul{list-style:none;display:flex;flex-direction:column;gap:5px}
+  .card-list li{font-family:var(--ff-bn);font-size:13px;color:#46382a;display:flex;gap:7px;align-items:center}
+  .card-list li::before{content:"✓";color:#6b7a4f;font-weight:800;font-family:var(--ff-body)}
+  .fee{margin-top:7px;display:flex;background:#2f2519;border-radius:12px;overflow:hidden;width:100%}
+  .fee div{flex:1;padding:8px 6px;text-align:center;color:#dccab0;font-size:10.5px;border-right:1px solid rgba(255,255,255,.12);font-family:var(--ff-bn)}
+  .fee div:last-child{border:none;background:#8a4f25;color:#f3e7d3}
+  .fee div b{display:block;font-size:14px;color:#f3d9a8;margin-top:2px}
+  .typing{display:inline-flex;gap:4px;background:#fff;border:1px solid #e7dcc8;padding:11px 13px;border-radius:16px;border-bottom-left-radius:5px}
+  .typing span{width:7px;height:7px;border-radius:50%;background:#c3b291;animation:td 1s infinite}
+  .typing span:nth-child(2){animation-delay:.18s}.typing span:nth-child(3){animation-delay:.36s}
+  @keyframes td{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-5px);opacity:1}}
+  .app-input{display:flex;align-items:center;gap:8px;padding:10px 11px;background:#fff;border-top:1px solid #ece0c8}
+  .app-input .mic{width:38px;height:38px;border-radius:50%;background:#b06a36;color:#fff;display:grid;place-items:center;flex:none;font-size:15px}
+  .app-input .field{flex:1;background:#f2ead9;border-radius:99px;padding:9px 14px;font-family:var(--ff-bn);font-size:12.5px;color:#9a8a70}
+  .app-input .send{width:38px;height:38px;border-radius:50%;background:#2f2519;color:#f3d9a8;display:grid;place-items:center;flex:none;font-size:14px}
+  .demo-steps{display:flex;flex-direction:column;gap:13px}
+  .dstep{display:flex;gap:15px;align-items:flex-start;background:var(--card);border-radius:16px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.5);padding:15px 18px}
+  .dstep .ic{width:44px;height:44px;border-radius:12px;background:#f3e3d2;display:grid;place-items:center;font-size:20px;flex:none}
+  .dstep.human .ic{background:#eef0e3}
+  .dstep .bn-t{font-family:var(--ff-bn);font-weight:600;font-size:16px;color:var(--ink);line-height:1.2}
+  .dstep .en-t{font-size:12.5px;color:var(--ink-soft);line-height:1.45;margin-top:4px}
+  .demo-foot{margin-top:14px;background:#2f2519;border-radius:14px;padding:14px 18px;color:#f3e7d3;display:flex;gap:13px;align-items:center}
+  .demo-foot .bn-n{font-family:var(--ff-bn);font-size:13.5px;line-height:1.5}
+  @media (max-width:920px){.demo-grid{grid-template-columns:1fr;gap:26px}}
+  .role-badge{margin-left:auto;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.32);color:#fff;font-family:var(--ff-bn);font-size:11px;font-weight:600;padding:3px 11px;border-radius:99px;white-space:nowrap}
+  .picker-hint{font-family:var(--ff-bn);font-size:13px;color:#f3d9a8;font-weight:600;margin-bottom:11px;display:flex;align-items:center;gap:8px}
+  .picker-hint span{font-family:var(--ff-body);font-size:11.5px;color:#efe3cf;opacity:.8;font-weight:500;font-style:italic}
+  .uc-picker{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .uc-pick{display:flex;gap:10px;align-items:center;text-align:left;cursor:pointer;background:var(--card);border:1px solid #e7dcc8;border-radius:13px;padding:10px 12px;box-shadow:0 8px 20px -18px rgba(40,28,14,.5);transition:transform .18s,border-color .18s,background .18s}
+  .uc-pick:hover{border-color:#caa877;transform:translateY(-2px)}
+  .uc-pick .nn{font-family:var(--ff-display);font-size:16px;color:var(--accent);font-weight:600;flex:none;width:24px;text-align:center}
+  .uc-pick .tt{font-family:var(--ff-bn);font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.18}
+  .uc-pick.on{background:#2f2519;border-color:#2f2519;transform:translateY(-2px)}
+  .uc-pick.on .tt{color:#f7efe0}.uc-pick.on .nn{color:#f3d9a8}
+  .dcard{margin-top:7px;width:100%;border-radius:12px;padding:9px 12px;font-family:var(--ff-bn);border:1px solid #ece0c8;background:#faf4e8}
+  .dcard .h{font-size:11.5px;font-weight:600;margin-bottom:4px;color:#8a4f25}
+  .dcard .l{font-size:12.5px;color:#46382a;line-height:1.45}
+  .dcard.warn{background:#fbeee9;border-color:#e9c3b8}.dcard.warn .h{color:#b15440}
+  .dcard.ok{background:#eef0e3;border-color:#cdd6b8}.dcard.ok .h{color:#46512f}
+  .dcard.info{background:#f3e9d6;border-color:#e3d2ad}
+  .dbars{margin-top:6px;display:flex;flex-direction:column;gap:5px}
+  .dbars .b{display:flex;align-items:center;gap:7px;font-size:11.5px;color:#46382a}
+  .dbars .b i{height:9px;border-radius:5px;background:#b06a36;display:block}
+  .story2 .q.bnq{font-family:var(--ff-bn);font-style:normal;font-size:17px;font-weight:500;line-height:1.6}
+  .story2 .q.bnq b{font-weight:700;color:var(--accent-deep)}
+  .story2 .scene.bns{font-family:var(--ff-bn);font-size:13.5px;line-height:1.62}
+  .credit{margin-top:32px;padding-top:22px;border-top:1px solid rgba(255,255,255,.18);max-width:580px}
+  .credit .lbl{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#f0d49a;font-weight:700;margin-bottom:9px}
+  .credit .nm{font-family:var(--ff-display);font-size:23px;color:#fbf5ea;line-height:1.15}
+  .credit .nm span{font-family:var(--ff-body);font-size:13px;font-style:italic;color:#efe3cf;font-weight:400}
+  .credit ul{list-style:none;margin-top:9px;display:flex;flex-direction:column;gap:4px}
+  .credit li{font-size:12.5px;color:#e9dcc6;line-height:1.45;opacity:.92;padding-left:15px;position:relative}
+  .credit li::before{content:"›";position:absolute;left:0;color:#c08a3e;font-weight:800}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <marker id="ah" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto-start-reverse">
+    <path d="M0 0 L9 4.5 L0 9 z" fill="#b06a36"/></marker>
+</defs></svg>
+
+<div id="topbar">
+  <div class="brand"><span class="un">UN<br>DP</span>
+    <div>AI for Digital Centers<small>UNDP Bangladesh · a2i · prototyped by Orange BD</small></div></div>
+  <div id="progress-wrap"><div id="progress"></div></div>
+  <div id="counter">01 / 14</div>
+</div>
+
+<div id="deck"><div id="track">
+
+  <section class="slide" id="s-cover"><div class="wrap">
+    <div>
+      <div class="cover-kicker reveal d1">Detailed Use-Case Design · 2026</div>
+      <h1 class="reveal d2">AI for the Digital&nbsp;Centers of the&nbsp;Future — told through <em>one entrepreneur's</em> day.</h1>
+      <p class="cover-sub reveal d3">Eleven concrete AI use cases for Union & City Digital Centers, each presented as a user story around one entrepreneur — and each backed by a reference architecture that keeps a human in control.</p>
+      <div class="cover-meta reveal d4">
+        <span class="chip">👤 One protagonist: an entrepreneur</span>
+        <span class="chip">🧩 8 architectures + 3 more</span>
+        <span class="chip">🛡️ Human-in-the-loop by design</span>
+      </div>
+      <div class="credit reveal d5">
+        <div class="lbl">Designed &amp; Architected by</div>
+        <div class="nm">Jahidul Arafat <span>· PhD Candidate, Auburn University (AU), USA</span></div>
+        <ul>
+          <li>Presidential &amp; Woltosz Graduate Research Fellow</li>
+          <li>Principal Strategist — Enterprise Architecture &amp; Global Expansion, OrangeBD</li>
+          <li>Lead Avatar Technology Developer, thinkingautomata.ai, USA</li>
+        </ul>
+      </div>
+    </div>
+    <div class="cover-art card reveal d3 float"><span class="tag">The Center</span>
+      <svg viewBox="0 0 360 300" style="width:100%;height:auto" aria-hidden="true">
+        <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b06a36"/><stop offset="1" stop-color="#8a4f25"/></linearGradient></defs>
+        <rect x="40" y="170" width="280" height="70" rx="10" fill="#efe1cd"/><rect x="40" y="170" width="280" height="14" rx="7" fill="#e2cfb0"/>
+        <rect x="70" y="96" width="120" height="78" rx="8" fill="#2f2519"/><rect x="78" y="104" width="104" height="62" rx="4" fill="#f7efe0"/>
+        <rect x="86" y="112" width="60" height="7" rx="3.5" fill="#b06a36"/><rect x="86" y="125" width="86" height="5" rx="2.5" fill="#d9c7a8"/>
+        <rect x="86" y="135" width="78" height="5" rx="2.5" fill="#d9c7a8"/><rect x="86" y="148" width="40" height="9" rx="4" fill="#6b7a4f"/>
+        <circle cx="250" cy="118" r="22" fill="url(#cg)"/><path d="M214 178 q36 -44 72 0 z" fill="url(#cg)"/>
+        <g class="float" style="animation-duration:5s"><circle cx="200" cy="60" r="15" fill="#2f2519"/><text x="200" y="65" text-anchor="middle" fill="#f3d9a8" font-size="13" font-family="Hanken Grotesk" font-weight="800">AI</text></g>
+        <line x1="212" y1="72" x2="248" y2="100" stroke="#b06a36" stroke-width="2" stroke-dasharray="4 5"/>
+      </svg>
+    </div>
+  </div></section>
+
+  <section class="slide" id="s-jahid"><div class="wrap">
+    <div class="eyebrow reveal d1" style="color:#f3d9a8;margin-bottom:18px">Meet the protagonist</div>
+    <h2 class="reveal d1" style="color:#fbf5ea;font-size:clamp(26px,3.4vw,42px);margin-bottom:28px">A day at Tetuljhora Union Digital Center</h2>
+    <div class="persona">
+      <div class="persona-card card reveal d2">
+        <svg viewBox="0 0 120 120" width="116" height="116" aria-hidden="true">
+          <circle cx="60" cy="60" r="58" fill="#f3e3d2"/><circle cx="60" cy="48" r="22" fill="#b06a36"/>
+          <path d="M22 108 q38 -50 76 0 z" fill="#b06a36"/></svg>
+        <div><div class="name">The Entrepreneur</div><div class="role">Union Digital Center Operator</div></div>
+        <ul class="persona-facts">
+          <li><span>Location</span> Tetuljhora UDC</li><li><span>Serves</span> ~40 citizens / day</li>
+          <li><span>Portals juggled</span> 12+ services</li><li><span>Payment rails</span> EkPay · MFS · bank</li>
+          <li><span>Tools today</span> notebook + memory</li></ul>
+      </div>
+      <div class="pain-grid">
+        <div class="pain reveal d3"><h4><span class="ic">📄</span> Wrong documents</h4><p>Citizens arrive unsure what's required. The entrepreneur re-collects the same papers, and incomplete files get rejected.</p></div>
+        <div class="pain reveal d3"><h4><span class="ic">💳</span> "Did my payment go through?"</h4><p>Every portal shows status differently. People keep returning just to ask if a payment was confirmed.</p></div>
+        <div class="pain reveal d4"><h4><span class="ic">⏳</span> Peak-day chaos</h4><p>Some mornings overflow; missed appointments and long queues frustrate everyone, including the vulnerable.</p></div>
+        <div class="pain reveal d4"><h4><span class="ic">📡</span> Unstable internet</h4><p>When connectivity drops, the entrepreneur can't be sure a case was truly submitted — and neither can the citizen.</p></div>
+      </div>
+    </div>
+    <p class="reveal d5" style="color:#efe3cf;margin-top:24px;font-size:14.5px;opacity:.9;line-height:1.6">Each use case is a moment in the entrepreneur's day where AI does the heavy lifting — <strong style="color:#f3d9a8">and the entrepreneur stays the decision-maker.</strong></p>
+  </div></section>
+
+  <section class="slide" id="s-principle"><div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow reveal d1" style="color:#f3d9a8">How to read every story</div>
+      <h2 class="reveal d1">Five questions behind every AI moment</h2>
+      <p class="reveal d2">No black boxes. Each AI intervention answers the same five questions — and the architecture diagrams that follow make the data-flow and the human checkpoint explicit.</p>
+    </div>
+    <div class="qrow">
+      <div class="qstep reveal d2"><div class="num">01</div><h4>What did AI observe?</h4><p>The raw signal — a status, a document, a query, a date.</p></div>
+      <div class="qstep reveal d3"><div class="num">02</div><h4>What did AI infer?</h4><p>The interpretation in plain language, with uncertainty kept visible.</p></div>
+      <div class="qstep reveal d3"><div class="num">03</div><h4>What does AI suggest?</h4><p>A recommended next action — never an executed one.</p></div>
+      <div class="qstep reveal d4"><div class="num">04</div><h4>What must humans approve?</h4><p>The control point — the entrepreneur or a supervisor confirms before anything is final.</p></div>
+      <div class="qstep reveal d4"><div class="num">05</div><h4>What if AI is wrong?</h4><p>The fallback — evidence trails, manual checks, safe defaults.</p></div>
+    </div>
+    <div class="card reveal d5" style="margin-top:22px;padding:20px 26px;display:flex;gap:18px;align-items:center;background:#f0f1e6">
+      <span style="font-size:30px">🛡️</span>
+      <p style="font-size:14.5px;color:var(--ink-soft);line-height:1.55"><strong style="color:var(--sage);font-weight:800">Governance language matters.</strong> AI says “possible anomaly”, “requires review”, “payment pending”. It never says “fraud confirmed” or “submitted” on its own. Sensitive data — PINs, OTPs, passwords, card numbers — is <strong>never</strong> stored.</p>
+    </div>
+  </div></section>
+
+  <section class="slide" id="s-demo"><div class="wrap">
+    <div class="eyebrow reveal d1" style="color:#f3d9a8">নাগরিক অভিজ্ঞতা · The citizen experience</div>
+    <h2 class="reveal d1" style="font-size:clamp(25px,3.3vw,40px);margin-top:12px">অ্যাপটি দেখতে কেমন — মানুষ কীভাবে AI-এর সাথে কথা বলবে</h2>
+    <p class="reveal d2" style="color:#efe3cf;max-width:640px;margin-top:12px;font-size:14.5px;line-height:1.6;opacity:.92">A simple Bangla app for rural citizens and entrepreneurs. People ask in their own words — by typing <em>or speaking</em> — and the AI answers in plain Bangla with documents, fees and next steps. The entrepreneur always confirms before anything is final.</p>
+    <div class="demo-grid">
+      <div class="phone reveal d2">
+        <div class="scr">
+          <div class="app-top">
+            <div class="av">AI</div>
+            <div><div class="nm">ডিজিটাল সেন্টার সহায়ক</div><div class="stt"><i></i> অনলাইন · সহজ বাংলায় উত্তর দেয়</div></div>
+            <div class="role-badge" id="bnrole">নাগরিক</div>
+          </div>
+          <div class="chat" id="bnchat"></div>
+          <div class="app-input">
+            <div class="mic">🎤</div>
+            <div class="field">এখানে লিখুন বা বলুন…</div>
+            <div class="send">➤</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="picker-hint reveal d2">যেকোনো সেবা বেছে নিন <span>· tap a use case to preview its citizen experience</span></div>
+        <div class="uc-picker reveal d3">
+          <button class="uc-pick on" data-uc="1"><span class="nn">০১</span><span class="tt">কেওয়াইসি ও ডকুমেন্ট ভল্ট</span></button>
+          <button class="uc-pick" data-uc="2"><span class="nn">০২</span><span class="tt">সেবা ও পেমেন্ট স্ট্যাটাস</span></button>
+          <button class="uc-pick" data-uc="3"><span class="nn">০৩</span><span class="tt">সেবা তথ্য সহায়ক</span></button>
+          <button class="uc-pick" data-uc="4"><span class="nn">০৪</span><span class="tt">চাহিদা ও সিরিয়াল</span></button>
+          <button class="uc-pick" data-uc="5"><span class="nn">০৫</span><span class="tt">পারফরম্যান্স সতর্কতা</span></button>
+          <button class="uc-pick" data-uc="6"><span class="nn">০৬</span><span class="tt">সেন্টার শ্রেণিবিন্যাস</span></button>
+          <button class="uc-pick" data-uc="7"><span class="nn">০৭</span><span class="tt">মতামত ও সততা বিশ্লেষণ</span></button>
+          <button class="uc-pick" data-uc="8"><span class="nn">০৮</span><span class="tt">অসংগতি শনাক্তকরণ</span></button>
+          <button class="uc-pick" data-uc="9"><span class="nn">০৯</span><span class="tt">ব্যবসা পরামর্শ</span></button>
+          <button class="uc-pick" data-uc="10"><span class="nn">১০</span><span class="tt">আর্থিক অন্তর্ভুক্তি</span></button>
+          <button class="uc-pick" data-uc="11"><span class="nn">১১</span><span class="tt">অফলাইন সহায়তা</span></button>
+        </div>
+        <div class="demo-foot reveal d5"><span style="font-size:24px">🗣️</span><div class="bn-n">কম পড়তে জানলেও সমস্যা নেই — <b style="color:#f3d9a8">কথা বলেও জিজ্ঞাসা করা যাবে।</b><br><span style="font-family:var(--ff-body);font-size:11.5px;color:#cdbb9a;font-style:italic">Voice-first, so low-literacy citizens can use it too.</span></div></div>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="slide uc-slide"><div class="wrap"><div class="uc-card">
+    <div class="arch" data-uc="1"></div><div class="arch-scrim"></div><div class="arch-tag">Reference architecture</div>
+    <div class="uc-layer">
+      <div class="reveal d1"><div class="uc-num">USE CASE 01</div><h2 class="uc-title">Assisted KYC &amp; the Document Vault</h2>
+        <div class="chips"><span class="c">For the entrepreneur + citizens</span><span class="c">Onboarding</span><span class="c gov">Consent-led</span></div></div>
+      <div class="story2 glass reveal d2"><p class="q bnq">“আমি চাই AI প্রতিটি পরিবারকে ঠিক কোন কোন কাগজ লাগবে তা জানিয়ে দিক এবং <b>সেগুলো নিরাপদে সংরক্ষণ ও পুনরায় ব্যবহার</b> করুক, যাতে অসম্পূর্ণ ফাইলের জন্য কেউ প্রত্যাখ্যাত না হয় বা দুইবার ফিরে যেতে না হয়।”</p>
+        <p class="scene bns"><strong>রাহিমা</strong> তার সন্তানকে ক্লাস ওয়ানে ভর্তি করাতে আসেন, কিন্তু কী আনতে হবে তা নিশ্চিত নন। AI তার উদ্দেশ্য বোঝে, প্রোফাইল খুঁজে বের করে, কাগজপত্রের তালিকা দেখায়, জন্ম নিবন্ধন স্ক্যান করে, <strong>ঝাপসা এনআইডি চিহ্নিত করে</strong>, সম্মতিসহ একটি ভল্টে সব সংরক্ষণ করে, এবং নিশ্চিত করে যে তিনি প্রস্তুত।</p></div>
+      <div class="minis">
+        <div class="mini2 ai glass reveal d3"><h5>⬡ AI augments</h5><ul><li>Detects intent &amp; matches profile</li><li>Reads &amp; extracts document fields</li><li>Flags missing / blurry / expired</li><li>Links child ↔ guardian for reuse</li></ul></div>
+        <div class="mini2 human glass reveal d4"><h5>✦ Entrepreneur controls</h5><ul><li>Confirms identity &amp; records consent</li><li>Checks document accuracy</li><li>Approves vault labels</li><li>Submits the final application</li></ul></div></div>
+      <div class="ailabel reveal d5"><span class="badge">AI in action</span><p><b>Service Readiness:</b> “All required documents are complete. The citizen is ready to proceed.”</p></div>
+    </div>
+  </div></div></section>
+
+  <section class="slide uc-slide"><div class="wrap"><div class="uc-card">
+    <div class="arch" data-uc="2"></div><div class="arch-scrim"></div><div class="arch-tag">Reference architecture</div>
+    <div class="uc-layer">
+      <div class="reveal d1"><div class="uc-num">USE CASE 02</div><h2 class="uc-title">Service Status &amp; Payment Tracking</h2>
+        <div class="chips"><span class="c">For the entrepreneur</span><span class="c">Daily operations</span><span class="c gov">Evidence only · no wallet</span></div></div>
+      <div class="story2 glass reveal d2"><p class="q bnq">“আমি এমন একটি স্ক্রিন চাই যা <b>প্রতিটি পোর্টাল ও পেমেন্ট স্ট্যাটাস বুঝে নেয়</b> এবং নাগরিকের জন্য আপডেট লিখে দেয়, যাতে আমাকে আর বহু লগইন সামলাতে না হয় এবং পেমেন্ট হয়েছে কিনা জানতে কাউকে বারবার ফোন করতে না হয়।”</p>
+        <p class="scene bns">একজন নাগরিক ফোন করেন: <strong>“আমার টাকা কি কেটেছে?”</strong> AI প্রশ্নটিকে সঠিক কেসের সাথে মেলায়, “পেন্ডিং” স্ট্যাটাস পড়ে, <strong>১০ মিনিটের মধ্যে সম্ভাব্য ডুপ্লিকেট</strong> শনাক্ত করে, এবং বাংলায় একটি শান্ত আপডেট লিখে দেয় — উদ্যোক্তা যাচাই করে পাঠান।</p></div>
+      <div class="minis">
+        <div class="mini2 ai glass reveal d3"><h5>⬡ AI augments</h5><ul><li>Matches query → correct case</li><li>Interprets paid / pending / failed</li><li>Detects delays &amp; duplicates</li><li>Drafts Bangla updates &amp; follow-ups</li></ul></div>
+        <div class="mini2 human glass reveal d4"><h5>✦ Entrepreneur controls</h5><ul><li>Confirms the correct case</li><li>Verifies payment evidence</li><li>Reviews message before sending</li><li>Updates status only with proof</li></ul></div></div>
+      <div class="ailabel reveal d5"><span class="badge">AI in action</span><p><b>Risk Flag:</b> “Possible duplicate — same citizen, service &amp; amount, two transactions in 10 minutes. <b>Review required.</b>”</p></div>
+    </div>
+  </div></div></section>
+
+  <section class="slide uc-slide"><div class="wrap"><div class="uc-card">
+    <div class="arch" data-uc="3"></div><div class="arch-scrim"></div><div class="arch-tag">Reference architecture</div>
+    <div class="uc-layer">
+      <div class="reveal d1"><div class="uc-num">USE CASE 03 · PROTOTYPE PRIORITY ①</div><h2 class="uc-title">Service Knowledge &amp; Communication Assistant</h2>
+        <div class="chips"><span class="c">For the entrepreneur + citizens</span><span class="c">Plain Bangla</span><span class="c">Easy to pilot</span></div></div>
+      <div class="story2 glass reveal d2"><p class="q bnq">“আমি চাই <b>যেকোনো সেবা নিয়ে সহজ ভাষায় প্রশ্ন করতে</b> এবং নিয়ম, কাগজপত্র ও সঠিক ফি বিভাজন সহজ বাংলায় পেতে, যাতে শত শত পদ্ধতি মুখস্থ না করেও আত্মবিশ্বাসের সাথে উত্তর দিতে পারি।”</p>
+        <p class="scene bns">একজন নাগরিক জমির নামজারির ফি সম্পর্কে জিজ্ঞাসা করেন। উদ্যোক্তা প্রশ্নটি টাইপ করেন; AI যোগ্যতা, কাগজপত্রের তালিকা এবং একটি পরিষ্কার বিভাজন দেখায় — <strong>সরকারি ফি বনাম অনুমোদিত সেবা চার্জ বনাম মোট</strong> — পড়ে শোনানো বা প্রিন্ট করার জন্য প্রস্তুত।</p></div>
+      <div class="minis">
+        <div class="mini2 ai glass reveal d3"><h5>⬡ AI augments</h5><ul><li>Answers requirements &amp; eligibility</li><li>Separates official fee &amp; charge</li><li>Simplifies govt language to Bangla</li><li>Drafts SMS / WhatsApp / voice</li></ul></div>
+        <div class="mini2 human glass reveal d4"><h5>✦ Entrepreneur controls</h5><ul><li>Confirms service rules locally</li><li>Validates agency interpretation</li><li>Decides what to share</li></ul></div></div>
+      <div class="ailabel reveal d5"><span class="badge">AI in action</span><p class="bn"><b>Fee:</b> “সরকারি ফি ১০০ · অনুমোদিত সেবা চার্জ ৫০ · মোট প্রদেয় ১৫০ টাকা।”</p></div>
+    </div>
+  </div></div></section>
+
+  <section class="slide uc-slide"><div class="wrap"><div class="uc-card">
+    <div class="arch" data-uc="4"></div><div class="arch-scrim"></div><div class="arch-tag">Reference architecture</div>
+    <div class="uc-layer">
+      <div class="reveal d1"><div class="uc-num">USE CASE 04</div><h2 class="uc-title">Predictive Demand &amp; Queue Optimization</h2>
+        <div class="chips"><span class="c">For the entrepreneur + citizens</span><span class="c">Scheduling</span><span class="c">Equity-aware</span></div></div>
+      <div class="story2 glass reveal d2"><p class="q bnq">“আমি চাই AI <b>ব্যস্ত দিনগুলো আগাম জানাক ও অ্যাপয়েন্টমেন্ট ভাগ করে দিক</b>, যাতে নাগরিকদের ঘণ্টার পর ঘণ্টা অপেক্ষা করতে না হয় এবং অসহায় মানুষ আগে সেবা পান।”</p>
+        <p class="scene bns">AI পূর্বাভাস দেয় যে জমি সেবার চাহিদার কারণে <strong>আগামীকাল সকালে ভিড় বাড়বে</strong>, জরুরি নয় এমন কেসের জন্য বিকেলের স্লট সুপারিশ করে, এবং রিমাইন্ডার তৈরি করে — তবে কোনো প্রবীণ নাগরিককে অগ্রাধিকার দেওয়ার ক্ষমতা উদ্যোক্তার হাতেই থাকে।</p></div>
+      <div class="minis">
+        <div class="mini2 ai glass reveal d3"><h5>⬡ AI augments</h5><ul><li>Predicts peak days &amp; hours</li><li>Recommends slots &amp; wait times</li><li>Suggests bundling services</li><li>Sends reminders &amp; delay notices</li></ul></div>
+        <div class="mini2 human glass reveal d4"><h5>✦ Entrepreneur controls</h5><ul><li>Confirms appointments</li><li>Handles exceptions</li><li>Prioritises vulnerable citizens</li></ul></div></div>
+      <div class="ailabel reveal d5"><span class="badge">AI in action</span><p><b>Queue Forecast:</b> “Tomorrow morning likely crowded — recommend afternoon slots for non-urgent cases.”</p></div>
+    </div>
+  </div></div></section>
+
+  <section class="slide uc-slide"><div class="wrap"><div class="uc-card">
+    <div class="arch" data-uc="5"></div><div class="arch-scrim"></div><div class="arch-tag">Reference architecture</div>
+    <div class="uc-layer">
+      <div class="reveal d1"><div class="uc-num">USE CASE 05</div><h2 class="uc-title">Early-Warning Dashboard for Center Performance</h2>
+        <div class="chips"><span class="c">For a2i · LGD · supervisors</span><span class="c">Oversight</span><span class="c gov">Validated before action</span></div></div>
+      <div class="story2 glass reveal d2"><p class="q bnq">“একগুচ্ছ ডিজিটাল সেন্টার দেখভালকারী a2i সুপারভাইজার হিসেবে, আমি চাই <b>বিরোধ বাড়লে বা আপডেট কমলে আগাম সতর্কতা</b>, যাতে নাগরিকের আস্থা ভাঙার আগেই আমরা সেন্টারগুলোকে সহায়তা দিতে পারি।”</p>
+        <p class="scene bns">দেরিতে সমস্যা ধরা পড়ার বদলে সুপারভাইজার দেখেন: <strong>“সেন্টার ০২৭ — পেমেন্ট বিরোধ বাড়ছে এবং নাগরিক আপডেটের হার কম।”</strong> AI একটি কোচিং ভিজিটের সুপারিশ করে; সুপারভাইজার পদক্ষেপ নেওয়ার আগে যাচাই করেন।</p></div>
+      <div class="minis">
+        <div class="mini2 ai glass reveal d3"><h5>⬡ AI augments</h5><ul><li>Monitors volume, delays, uptime</li><li>Detects early-warning signs</li><li>Groups issues by center / area</li><li>Recommends support actions</li></ul></div>
+        <div class="mini2 human glass reveal d4"><h5>✦ Supervisor controls</h5><ul><li>Validates every AI insight</li><li>Decides administrative action</li><li>Confirms via field tracker</li></ul></div></div>
+      <div class="ailabel reveal d5"><span class="badge">AI in action</span><p><b>Early Warning:</b> “Center 027 — rising disputes &amp; low update rate. Supervisor review recommended.”</p></div>
+    </div>
+  </div></div></section>
+
+  <section class="slide uc-slide"><div class="wrap"><div class="uc-card">
+    <div class="arch" data-uc="7"></div><div class="arch-scrim"></div><div class="arch-tag">Reference architecture</div>
+    <div class="uc-layer">
+      <div class="reveal d1"><div class="uc-num">USE CASE 07 · PROTOTYPE PRIORITY ②</div><h2 class="uc-title">Citizen Feedback &amp; Integrity Analysis</h2>
+        <div class="chips"><span class="c">For supervisors</span><span class="c">Trust &amp; accountability</span><span class="c gov">Human-reviewed</span></div></div>
+      <div class="story2 glass reveal d2"><p class="q bnq">“একজন সুপারভাইজার হিসেবে, আমি চাই প্রতিটি মতামত <b>থিম ও অনুভূতি অনুযায়ী স্বয়ংক্রিয়ভাবে শ্রেণিবদ্ধ হোক</b>, যাতে অস্পষ্ট ফি নিয়ে ছড়িয়ে থাকা অভিযোগগুলো একটি পরিষ্কার, কার্যকর সংকেতে পরিণত হয়।”</p>
+        <p class="scene bns">প্রতি মাসে শত শত সংক্ষিপ্ত বাংলা মন্তব্য আসে। AI থিম সাজায়, অনুভূতি শনাক্ত করে, পুনরাবৃত্তি খুঁজে বের করে, এবং তুলে ধরে: <strong>“এই সপ্তাহের বেশিরভাগ অভিযোগ অস্পষ্ট পেমেন্ট চার্জ ও বিলম্বিত আপডেট সংক্রান্ত।”</strong></p></div>
+      <div class="minis">
+        <div class="mini2 ai glass reveal d3"><h5>⬡ AI augments</h5><ul><li>Classifies fee / delay / document</li><li>Detects sentiment in short Bangla</li><li>Flags repeated &amp; integrity concerns</li><li>Prepares monthly briefs</li></ul></div>
+        <div class="mini2 human glass reveal d4"><h5>✦ Supervisor controls</h5><ul><li>Reviews serious complaints</li><li>Validates evidence first</li><li>Owns the action tracker</li></ul></div></div>
+      <div class="ailabel reveal d5"><span class="badge">AI in action</span><p><b>Feedback Theme:</b> “Most complaints this week relate to unclear payment charges and delayed updates.”</p></div>
+    </div>
+  </div></div></section>
+
+  <section class="slide uc-slide"><div class="wrap"><div class="uc-card">
+    <div class="arch" data-uc="8"></div><div class="arch-scrim"></div><div class="arch-tag">Reference architecture</div>
+    <div class="uc-layer">
+      <div class="reveal d1"><div class="uc-num">USE CASE 08</div><h2 class="uc-title">Anomaly Monitoring for Sensitive Services</h2>
+        <div class="chips"><span class="c">For supervisors</span><span class="c">Risk, not verdict</span><span class="c gov">Never “fraud confirmed”</span></div></div>
+      <div class="story2 glass reveal d2"><p class="q bnq">“একজন সুপারভাইজার হিসেবে, আমি চাই AI <b>সম্ভাব্য অসংগতি মানবিক পর্যালোচনার জন্য চিহ্নিত করুক — কখনো দোষ ঘোষণা না করুক</b>, যাতে হাজার হাজার সেন্টারে সততা ন্যায্যভাবে রক্ষা পায়।”</p>
+        <p class="scene bns">বহু সেন্টার ও পেমেন্ট মাধ্যম জুড়ে অসংগতিগুলো ম্যানুয়াল পরীক্ষায় ধরা পড়ে না। AI পেমেন্ট, রসিদ, স্ট্যাটাস ও অভিযোগের রেকর্ড সংযুক্ত করে, এরপর একটি <strong>সতর্ক “যাচাই প্রয়োজন” ফ্ল্যাগ</strong> তোলে — দোষ নির্ধারণ ও পদক্ষেপ সম্পূর্ণরূপে মানুষের হাতে থাকে।</p></div>
+      <div class="minis">
+        <div class="mini2 ai glass reveal d3"><h5>⬡ AI augments</h5><ul><li>Detects unusual payment patterns</li><li>Flags duplicates &amp; missing receipts</li><li>Compares charges across peers</li><li>Generates risk alerts for review</li></ul></div>
+        <div class="mini2 human glass reveal d4"><h5>✦ Supervisor controls</h5><ul><li>Determines what is wrong</li><li>Verifies evidence first</li><li>Owns every final decision</li></ul></div></div>
+      <div class="ailabel reveal d5"><span class="badge">Governance</span><p>Allowed: <b>possible anomaly · risk flag · requires review.</b> Forbidden: AI labels like “fraud confirmed”.</p></div>
+    </div>
+  </div></div></section>
+
+  <section class="slide uc-slide"><div class="wrap"><div class="uc-card">
+    <div class="arch" data-uc="11"></div><div class="arch-scrim"></div><div class="arch-tag">Reference architecture</div>
+    <div class="uc-layer">
+      <div class="reveal d1"><div class="uc-num">USE CASE 11</div><h2 class="uc-title">Offline &amp; Low-Connectivity Support</h2>
+        <div class="chips"><span class="c">For the entrepreneur</span><span class="c">Resilience</span><span class="c gov">“Not submitted” until proven</span></div></div>
+      <div class="story2 glass reveal d2"><p class="q bnq">“অস্থিতিশীল ইন্টারনেটের এলাকায় আমি চাই <b>কেসগুলো অফলাইনে সংরক্ষণ করে পরে নিরাপদে সিঙ্ক করতে</b>, AI স্পষ্ট করে দেবে যে পেমেন্ট এখনো নিশ্চিত হয়নি — যাতে কাজ শেষ না হলে নাগরিককে কখনো ‘হয়ে গেছে’ বলা না হয়।”</p>
+        <p class="scene bns">আবেদনের মাঝপথে সংযোগ চলে যায়। AI ফর্মটি সহজ করে, কেসটিকে <strong>“পেন্ডিং সিঙ্ক” চিহ্নিত খসড়া</strong> হিসেবে সংরক্ষণ করে, পেমেন্ট যাচাই হয়নি বলে সতর্ক করে, এবং সংযোগ ফিরলে আনুষ্ঠানিক জমা সম্পূর্ণ করতে উদ্যোক্তাকে মনে করিয়ে দেয়।</p></div>
+      <div class="minis">
+        <div class="mini2 ai glass reveal d3"><h5>⬡ AI augments</h5><ul><li>Simplifies offline capture</li><li>Saves drafts &amp; marks pending sync</li><li>Checks missing fields before sync</li><li>Warns payment is not verified</li></ul></div>
+        <div class="mini2 human glass reveal d4"><h5>✦ Entrepreneur controls</h5><ul><li>Confirms captured data</li><li>Syncs &amp; submits officially</li><li>Marks “submitted” only on confirm</li></ul></div></div>
+      <div class="ailabel reveal d5"><span class="badge">AI in action</span><p><b>Offline Warning:</b> “This case is saved as a draft only. It has not yet been officially submitted.”</p></div>
+    </div>
+  </div></div></section>
+
+  <section class="slide" id="s-more"><div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow reveal d1" style="color:#f3d9a8">The fuller landscape</div>
+      <h2 class="reveal d1">Three more use cases on the entrepreneur's horizon</h2>
+      <p class="reveal d2">Higher-value or governance-sensitive ideas designed for later phases once the core stories are proven.</p>
+    </div>
+    <div class="more-grid">
+      <div class="more card reveal d3"><div class="n">06</div><h4>Center Maturity Classification</h4><p>Sorts centers into fair maturity tiers using peers in similar contexts — not unfair national averages.</p><div class="ai">“Level 2 · Basic Digital Service Center. Gaps: payment recording, feedback, uptime.”</div></div>
+      <div class="more card reveal d4"><div class="n">09</div><h4>Business Sustainability Advisory</h4><p>Helps the entrepreneur see profitable services, cost pressure and local demand — without ever pushing unofficial charges.</p><div class="ai">“Utility &amp; school-admission support are rising — consider service bundles next month.”</div></div>
+      <div class="more card reveal d5"><div class="n">10</div><h4>Financial Inclusion Recommender</h4><p>Neutrally explains approved savings, insurance &amp; MSME options — informs, never pressures a sale.</p><div class="ai">“This may be a relevant savings option. Please review with the authorized provider first.”</div></div>
+    </div>
+  </div></section>
+
+  <section class="slide" id="s-road"><div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow reveal d1" style="color:#f3d9a8">Recommendation</div>
+      <h2 class="reveal d1">What to prototype first</h2>
+      <p class="reveal d2">We don't pilot all eleven at once. We prove the experience with two–three high-value, low-risk, data-ready stories — then expand.</p>
+    </div>
+    <div class="road">
+      <div class="step first card reveal d3"><span class="rank">1</span><div class="p">Priority ①</div><h4>Service Knowledge &amp; Communication Assistant</h4><p class="r">Easiest to prototype and immediately useful for entrepreneurs and citizens. Low governance risk, instant value.</p></div>
+      <div class="step card reveal d4"><span class="rank">2</span><div class="p">Priority ②</div><h4>Citizen Feedback &amp; Integrity Analysis</h4><p class="r">Directly linked to citizen trust, feedback loops and accountability — the heartbeat of the Digital Center promise.</p></div>
+      <div class="step card reveal d5"><span class="rank">3</span><div class="p">Priority ③</div><h4>Service Status &amp; Payment Tracking</h4><p class="r">Solves the daily pain around status, payment and citizen communication the entrepreneur feels most.</p></div>
+    </div>
+  </div></section>
+
+  <section class="slide" id="s-end"><div class="wrap">
+    <div class="eyebrow reveal d1" style="color:#f3d9a8;justify-content:center;display:flex">Thank you</div>
+    <h2 class="reveal d2">AI does the heavy lifting.<br><em>The entrepreneur</em> keeps the final word.</h2>
+    <p class="reveal d3">Eleven context-specific use cases, one human-in-the-loop principle, ready for prototyping with a2i &amp; UNDP Bangladesh.</p>
+    <div class="end-stats">
+      <div class="st reveal d4"><div class="v">11</div><div class="l">Use cases mapped</div></div>
+      <div class="st reveal d4"><div class="v">3</div><div class="l">Prototype priorities</div></div>
+      <div class="st reveal d5"><div class="v">5</div><div class="l">Accountability questions</div></div>
+      <div class="st reveal d5"><div class="v">100%</div><div class="l">Human-approved actions</div></div>
+    </div>
+  </div></section>
+
+</div></div>
+
+<div id="dots"></div>
+<button id="prev" class="navbtn" aria-label="Previous">‹</button>
+<button id="next" class="navbtn" aria-label="Next">›</button>
+<div class="hint">Use <kbd>←</kbd> <kbd>→</kbd> or swipe</div>
+
+<script>
+const ARCH = {
+  1:{core:'AI ENGINE',modules:['Intent & profile match','OCR field extraction','Completeness & flags','Family linkage'],
+     inputs:[['Citizen','service intent'],['Entrepreneur console','operator']],
+     stores:[['Document Vault','encrypted · consented'],['Profile & Consent DB','reusable records']],
+     human:'Entrepreneur confirms & consents',output:'Draft case → UC-02'},
+  2:{core:'AI AGENT',modules:['Case matching','Status interpreter','Duplicate / reconcile','Bangla message draft'],
+     inputs:[['Citizen query','phone · txn · case'],['Portals & rails','EkPay · MFS · bank']],
+     stores:[['Evidence store','status & refs · no creds'],['Case register','history & follow-ups']],
+     human:'Entrepreneur verifies evidence',output:'Citizen update + queue'},
+  3:{core:'AI ASSISTANT',modules:['Intent understanding','Eligibility & docs','Fee engine (fee+charge)','Bangla simplifier'],
+     inputs:[['Citizen / operator','plain question'],['Knowledge base','rules · fees · timelines']],
+     stores:[['Service catalog','versioned rules'],['Fee schedule','gov + approved charge']],
+     human:'Entrepreneur confirms local rules',output:'SMS · WhatsApp · voice'},
+  4:{core:'FORECAST ENGINE',modules:['Demand forecasting','Slot optimization','Wait estimation','Reminder service'],
+     inputs:[['Historical demand','volume & seasonality'],['Live appointments','today load']],
+     stores:[['Forecast model','peak days & hours'],['Calendar store','slots & bookings']],
+     human:'Entrepreneur prioritises vulnerable',output:'Reminders & reschedules'},
+  5:{core:'WARNING ENGINE',modules:['Telemetry aggregation','Warning detection','Issue grouping','Summary generation'],
+     inputs:[['Center telemetry','delays · complaints · uptime'],['Payment & dispute feed','per center']],
+     stores:[['Performance index','by center / service'],['Support action log','recommendations']],
+     human:'Supervisor validates',output:'Dashboard + field visit'},
+  7:{core:'NLP ENGINE',modules:['Theme classification','Sentiment (Bangla)','Repeat-complaint detect','Monthly brief'],
+     inputs:[['Feedback channels','forms · SMS · chatbot'],['Complaint records','fee · delay · behavior']],
+     stores:[['Voice-of-citizen index','by center & theme'],['Integrity signals','flagged patterns']],
+     human:'Supervisor reviews cases',output:'Action tracker'},
+  8:{core:'ANOMALY ENGINE',modules:['Feature join','Peer comparison','Risk scoring','Governance labels'],
+     inputs:[['Payment & receipt data','refs & amounts'],['Status & complaint data','linked records']],
+     stores:[['Risk-flag register','requires review'],['Audit trail','immutable evidence']],
+     human:'Supervisor decides outcome',output:'Review queue (no verdict)'},
+  11:{core:'ON-DEVICE + SYNC',modules:['Offline capture','Missing-field check','Sync queue & priority','Unverified-pay guard'],
+     inputs:[['Citizen (offline)','no connectivity'],['Entrepreneur device','local app']],
+     stores:[['Local draft store','pending sync'],['Sync ledger','conflict & dedupe']],
+     human:'Entrepreneur submits when online',output:'Portal confirm → citizen msg'}
+};
+
+function box(x,y,w,h,cls,l,s){
+  let t='<rect class="nb '+cls+'" x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="14"/>';
+  var tx=x+16, isAi=cls.indexOf('ai')>-1;
+  if(s){
+    t+='<text class="nt '+(isAi?'ai':'')+'" x="'+tx+'" y="'+(y+h/2-3)+'">'+l+'</text>';
+    t+='<text class="nt sub '+(isAi?'ai':'')+'" x="'+tx+'" y="'+(y+h/2+16)+'">'+s+'</text>';
+  } else {
+    t+='<text class="nt '+(isAi?'ai':'')+'" x="'+tx+'" y="'+(y+h/2+5)+'">'+l+'</text>';
+  }
+  return t;
+}
+function pill(x,y,w,h,cls,l){
+  var isAi=cls.indexOf('ai')>-1, isHm=cls.indexOf('hm')>-1;
+  return '<rect class="nb '+cls+'" x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="'+(h/2)+'"/>'+
+         '<text class="nt '+(isHm?'hm':(isAi?'ai':''))+'" x="'+(x+w/2)+'" y="'+(y+h/2+5)+'" text-anchor="middle">'+l+'</text>';
+}
+function buildArch(cfg){
+  var E=[
+    'M206 70 C220 70 226 124 232 152',
+    'M216 180 C226 180 228 232 232 252',
+    'M482 162 C498 132 502 114 512 102',
+    'M482 240 L512 222',
+    'M357 330 L357 372',
+    'M482 398 L512 398'
+  ];
+  var s='<svg viewBox="0 0 726 460" preserveAspectRatio="xMidYMid meet" style="width:100%;height:auto" aria-hidden="true">';
+  s+='<g>'; E.forEach(function(d){ s+='<path class="edge flow" d="'+d+'" marker-end="url(#ah)"/>'; }); s+='</g>';
+  ['M206 70 C220 70 226 124 232 152','M357 330 L357 372','M482 398 L512 398'].forEach(function(d,k){
+    s+='<circle class="pk" r="4.6" fill="#b06a36"><animateMotion dur="2.6s" begin="'+(k*0.55)+'s" repeatCount="indefinite" path="'+d+'"/></circle>';
+  });
+  s+='<text class="tag" x="16" y="30">INPUTS</text>';
+  s+=box(16,44,190,54,'ext',cfg.inputs[0][0],cfg.inputs[0][1]);
+  s+=box(16,154,200,54,'ext',cfg.inputs[1][0],cfg.inputs[1][1]);
+  s+='<text class="tag" x="232" y="110">AI ENGINE</text>';
+  s+='<rect class="nb ai core" x="232" y="120" width="250" height="210" rx="18"/>';
+  s+='<text class="nt ai" x="252" y="156" style="font-size:17px;font-weight:800">'+cfg.core+'</text>';
+  cfg.modules.forEach(function(m,k){ s+='<text class="nt ai sub" x="252" y="'+(186+k*28)+'">• '+m+'</text>'; });
+  s+='<text class="tag" x="512" y="58">DATA &amp; GOVERNANCE</text>';
+  s+=box(512,70,200,62,'store',cfg.stores[0][0],cfg.stores[0][1]);
+  s+=box(512,190,200,62,'store',cfg.stores[1][0],cfg.stores[1][1]);
+  s+='<text class="tag" x="232" y="362">HUMAN-IN-THE-LOOP</text>';
+  s+=pill(232,372,250,52,'hm','✦ '+cfg.human);
+  s+=pill(512,373,200,50,'out','→ '+cfg.output);
+  s+='</svg>';
+  return s;
+}
+document.querySelectorAll('.arch[data-uc]').forEach(function(host){
+  var cfg=ARCH[host.getAttribute('data-uc')];
+  if(cfg) host.innerHTML=buildArch(cfg);
+});
+
+(function(){
+  var track=document.getElementById('track');
+  var slides=Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var prevBtn=document.getElementById('prev'), nextBtn=document.getElementById('next');
+  var dotsBox=document.getElementById('dots'), prog=document.getElementById('progress'), counter=document.getElementById('counter');
+  var i=0, N=slides.length;
+  slides.forEach(function(_,k){ var b=document.createElement('button'); b.addEventListener('click',function(){go(k);}); dotsBox.appendChild(b); });
+  var dots=Array.prototype.slice.call(dotsBox.children);
+  function pad(n){return String(n).length<2?'0'+n:''+n;}
+  function go(n){
+    i=Math.max(0,Math.min(N-1,n));
+    track.style.transform='translateX(-'+(i*100)+'%)';
+    slides.forEach(function(s,k){ s.classList.toggle('is-active',k===i); });
+    dots.forEach(function(d,k){ d.classList.toggle('on',k===i); });
+    prog.style.width=((i+1)/N*100)+'%';
+    counter.textContent=pad(i+1)+' / '+pad(N);
+    prevBtn.disabled=i===0; nextBtn.disabled=i===N-1;
+  }
+  prevBtn.addEventListener('click',function(){go(i-1);});
+  nextBtn.addEventListener('click',function(){go(i+1);});
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(i+1);}
+    if(e.key==='ArrowLeft')go(i-1);
+    if(e.key==='Home')go(0); if(e.key==='End')go(N-1);
+  });
+  var x0=null;
+  track.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;},{passive:true});
+  track.addEventListener('touchend',function(e){ if(x0===null)return; var dx=e.changedTouches[0].clientX-x0; if(Math.abs(dx)>55){ if(dx<0)go(i+1); else go(i-1);} x0=null; },{passive:true});
+  go(0);
+})();
+</script>
+<script>
+(function(){
+  var slide=document.getElementById('s-demo'); if(!slide) return;
+  var chat=document.getElementById('bnchat'); if(!chat) return;
+  var roleEl=document.getElementById('bnrole');
+  var SC={
+   '1':{role:'নাগরিক',steps:[
+     {t:'user',delay:450,bn:'আমার মেয়েকে ক্লাস ওয়ানে ভর্তি করাতে চাই।',en:'I want to admit my daughter to Class One.'},
+     {t:'typing',delay:650},
+     {t:'ai',delay:1200,bn:'ঠিক আছে। ক্লাস ওয়ান ভর্তির জন্য এই কাগজগুলো লাগবে:',en:'Sure — here are the documents you will need:',card:'<div class="card-list"><div class="h">প্রয়োজনীয় কাগজপত্র</div><ul><li>শিশুর জন্ম নিবন্ধন সনদ</li><li>পিতা/মাতার এনআইডি</li><li>ঠিকানার প্রমাণ</li><li>১ কপি পাসপোর্ট সাইজ ছবি</li></ul></div>'},
+     {t:'ai',delay:1100,bn:'আপনার এনআইডি-র ছবিটি ঝাপসা — অনুগ্রহ করে আবার তুলুন।',en:'Your NID photo is blurry — please retake it.',card:'<div class="dcard warn"><div class="h">⚠ যাচাই দরকার</div><div class="l">এনআইডি ছবি অস্পষ্ট</div></div>'},
+     {t:'note',delay:850,bn:'✦ উদ্যোক্তা পরিচয় ও সম্মতি নিশ্চিত করবেন'},
+     {t:'ai',delay:1000,bn:'সব কাগজ ঠিক আছে ✅ ভল্টে সংরক্ষিত — পরের সেবায় আবার ব্যবহার করা যাবে।',en:'All set — saved in the vault and reusable for the next service.'}
+   ]},
+   '2':{role:'নাগরিক',steps:[
+     {t:'user',delay:450,bn:'আমার আবেদনের টাকা কি কেটেছে? স্ট্যাটাস কী?',en:'Was my fee deducted? What is the status?'},
+     {t:'typing',delay:650},
+     {t:'ai',delay:1150,bn:'আপনার কেসটি পেয়েছি। বর্তমান পেমেন্ট স্ট্যাটাস:',en:'Found your case. Current payment status:',card:'<div class="dcard info"><div class="h">পেমেন্ট স্ট্যাটাস</div><div class="l">পেন্ডিং · EkPay · রেফ #48217</div></div>'},
+     {t:'ai',delay:1100,bn:'একটি বিষয় খেয়াল করলাম —',en:'I noticed something —',card:'<div class="dcard warn"><div class="h">⚠ সম্ভাব্য ডুপ্লিকেট</div><div class="l">একই নাগরিক, একই সেবা, ১০ মিনিটে দুইবার পেমেন্ট। যাচাই প্রয়োজন।</div></div>'},
+     {t:'note',delay:850,bn:'✦ উদ্যোক্তা প্রমাণ যাচাই করে নিশ্চিত করবেন'},
+     {t:'ai',delay:1000,bn:'যাচাই চলছে — নিশ্চিত হলে আপনাকে বাংলায় জানিয়ে দেওয়া হবে।',en:'Verifying now — you will be notified in Bangla.'}
+   ]},
+   '3':{role:'নাগরিক',steps:[
+     {t:'user',delay:450,bn:'জমির নামজারির ফি কত? কী কাগজ লাগে?',en:'What is the land mutation fee and which papers are needed?'},
+     {t:'typing',delay:650},
+     {t:'ai',delay:1150,bn:'নামজারির ফি নিচে আলাদাভাবে দেখানো হলো:',en:'Here is the fee, shown separately:',card:'<div class="fee"><div>সরকারি ফি<b>৳১১৫০</b></div><div>সেবা চার্জ<b>৳১৫০</b></div><div>মোট<b>৳১৩০০</b></div></div>'},
+     {t:'ai',delay:1100,bn:'প্রয়োজনীয় কাগজ:',en:'Required documents:',card:'<div class="card-list"><div class="h">কাগজপত্র</div><ul><li>খতিয়ান ও দলিল</li><li>এনআইডি</li><li>সর্বশেষ খাজনার রসিদ</li></ul></div>'},
+     {t:'ai',delay:1000,bn:'চাইলে এটি এসএমএস করে বা প্রিন্ট করে দিতে পারি।',en:'I can send this by SMS or print it for you.'}
+   ]},
+   '4':{role:'নাগরিক',steps:[
+     {t:'user',delay:450,bn:'কালকে সকালে কি ভিড় হবে? কখন এলে ভালো?',en:'Will tomorrow morning be crowded? When should I come?'},
+     {t:'typing',delay:650},
+     {t:'ai',delay:1150,bn:'পূর্বাভাস অনুযায়ী —',en:'Based on the forecast —',card:'<div class="dcard info"><div class="h">চাহিদা পূর্বাভাস</div><div class="l">কাল সকাল ব্যস্ত থাকবে (জমি সেবা)। বিকেল তুলনামূলক ফাঁকা।</div></div>'},
+     {t:'ai',delay:1050,bn:'আপনার জন্য আগামীকাল বিকেল ৩:০০ স্লট রাখলাম। রিমাইন্ডার পাঠানো হবে।',en:'Booked a 3:00 PM slot for you; a reminder will be sent.'},
+     {t:'note',delay:850,bn:'✦ উদ্যোক্তা সময় নিশ্চিত করবেন; জরুরি হলে অগ্রাধিকার'}
+   ]},
+   '5':{role:'সুপারভাইজার',steps:[
+     {t:'ai',delay:600,bn:'আগাম সতর্কতা তৈরি হয়েছে —',en:'An early warning has been generated —',card:'<div class="dcard warn"><div class="h">⚠ সেন্টার ০২৭</div><div class="l">পেমেন্ট বিরোধ বাড়ছে · নাগরিক আপডেট রেট কম</div></div>'},
+     {t:'user',delay:900,bn:'বিস্তারিত দেখাও।',en:'Show me the details.'},
+     {t:'typing',delay:600},
+     {t:'ai',delay:1050,bn:'গত ২ সপ্তাহে ৫টি বিরোধ; ৩টি কেসে রসিদ নেই।',en:'5 disputes in 2 weeks; 3 cases missing receipts.'},
+     {t:'ai',delay:1000,bn:'সুপারিশ: কোচিং ভিজিট ও সংযোগ পর্যালোচনা।',en:'Suggestion: a coaching visit and connectivity review.',card:'<div class="dcard ok"><div class="h">সুপারিশকৃত পদক্ষেপ</div><div class="l">কোচিং ভিজিট</div></div>'},
+     {t:'note',delay:850,bn:'✦ সুপারভাইজার যাচাই করে ব্যবস্থা নেবেন'}
+   ]},
+   '6':{role:'উদ্যোক্তা',steps:[
+     {t:'user',delay:450,bn:'আমার সেন্টার এখন কোন লেভেলে আছে?',en:'What maturity level is my center at?'},
+     {t:'typing',delay:650},
+     {t:'ai',delay:1150,bn:'একই রকম সেন্টারের সাথে তুলনা করে —',en:'Compared with similar centers —',card:'<div class="dcard info"><div class="h">শ্রেণিবিন্যাস</div><div class="l">লেভেল ২ · বেসিক ডিজিটাল সেবা সেন্টার</div></div>'},
+     {t:'ai',delay:1050,bn:'মূল ঘাটতি: পেমেন্ট রেকর্ড, নাগরিক মতামত, আপটাইম।',en:'Main gaps: payment recording, citizen feedback, uptime.'},
+     {t:'ai',delay:1000,bn:'রসিদ রেকর্ডিং উন্নত করলে লেভেল ৩-এ ওঠা সম্ভব।',en:'Improving receipt recording can move you to Level 3.',card:'<div class="dcard ok"><div class="h">উন্নয়ন পরিকল্পনা</div><div class="l">রসিদ রেকর্ডিং প্রশিক্ষণ → লেভেল ৩</div></div>'},
+     {t:'note',delay:850,bn:'✦ চূড়ান্ত রেটিং অনুমোদিত কমিটি দেবে'}
+   ]},
+   '7':{role:'সুপারভাইজার',steps:[
+     {t:'ai',delay:600,bn:'এই সপ্তাহের নাগরিক মতামত বিশ্লেষণ প্রস্তুত:',en:'This week’s citizen-feedback analysis is ready:',card:'<div class="dcard"><div class="h">থিম অনুযায়ী মতামত</div><div class="dbars"><div class="b"><i style="width:78px"></i>ফি ৪৭%</div><div class="b"><i style="width:50px;background:#c0892e"></i>বিলম্ব ৩১%</div><div class="b"><i style="width:34px;background:#6b7a4f"></i>কাগজ ২২%</div></div></div>'},
+     {t:'ai',delay:1050,bn:'পুনরাবৃত্ত অভিযোগ শনাক্ত —',en:'A repeated complaint detected —',card:'<div class="dcard warn"><div class="h">সততা সংকেত</div><div class="l">‘অস্পষ্ট চার্জ’ — একই থিমে বারবার অভিযোগ</div></div>'},
+     {t:'user',delay:900,bn:'এটি পর্যালোচনার জন্য রাখো।',en:'Flag this for review.'},
+     {t:'note',delay:800,bn:'✦ সুপারভাইজার গুরুতর অভিযোগ যাচাই করবেন'}
+   ]},
+   '8':{role:'সুপারভাইজার',steps:[
+     {t:'ai',delay:600,bn:'একটি ঝুঁকি ফ্ল্যাগ উঠেছে —',en:'A risk flag has been raised —',card:'<div class="dcard warn"><div class="h">⚠ ঝুঁকি ফ্ল্যাগ · সেন্টার ০৪২</div><div class="l">পিয়ার সেন্টারের তুলনায় অস্বাভাবিক সেবা চার্জ</div></div>'},
+     {t:'ai',delay:1050,bn:'প্রমাণ: রসিদবিহীন ৩টি কেস, একই সেবায় ভিন্ন চার্জ।',en:'Evidence: 3 cases without receipts; varying charges for the same service.'},
+     {t:'ai',delay:1000,bn:'ভাষা সতর্ক: ‘যাচাই প্রয়োজন’ — এটি কোনো রায় নয়।',en:'Careful language: “requires review” — never a verdict.'},
+     {t:'note',delay:850,bn:'✦ সুপারভাইজার সিদ্ধান্ত নেবেন; AI শুধু সংকেত দেয়'}
+   ]},
+   '9':{role:'উদ্যোক্তা',steps:[
+     {t:'user',delay:450,bn:'এই মাসে আয় বাড়াতে কী করতে পারি?',en:'What can I do to increase income this month?'},
+     {t:'typing',delay:650},
+     {t:'ai',delay:1150,bn:'আপনার এলাকার চাহিদা বিশ্লেষণ করে —',en:'Analyzing demand in your area —',card:'<div class="dcard info"><div class="h">স্থানীয় সুযোগ</div><div class="l">ইউটিলিটি বিল ও স্কুল ভর্তি সেবার চাহিদা বাড়ছে</div></div>'},
+     {t:'ai',delay:1050,bn:'সুপারিশ: আগামী মাসের জন্য সেবা বান্ডল তৈরি করুন।',en:'Suggestion: prepare service bundles for next month.',card:'<div class="dcard ok"><div class="h">ব্যবসা টিপ</div><div class="l">ইউটিলিটি + ভর্তি সহায়তা বান্ডল</div></div>'},
+     {t:'note',delay:850,bn:'✦ সিদ্ধান্ত উদ্যোক্তার; কোনো অনানুষ্ঠানিক চার্জ নয়'}
+   ]},
+   '10':{role:'নাগরিক',steps:[
+     {t:'user',delay:450,bn:'আমি কি কোনো সঞ্চয় বা বীমা সেবা নিতে পারি?',en:'Can I get a savings or insurance service?'},
+     {t:'typing',delay:650},
+     {t:'ai',delay:1150,bn:'আপনার জন্য কিছু অনুমোদিত বিকল্প আছে:',en:'There are some approved options for you:',card:'<div class="card-list"><div class="h">অনুমোদিত বিকল্প</div><ul><li>এজেন্ট ব্যাংকিং সঞ্চয়</li><li>মাইক্রোইনস্যুরেন্স</li></ul></div>'},
+     {t:'ai',delay:1050,bn:'এটি একটি সম্ভাব্য সঞ্চয় বিকল্প — কোনো চাপ নয়, শুধু তথ্য।',en:'This may be a relevant savings option — no pressure, just information.',card:'<div class="dcard info"><div class="h">তথ্য</div><div class="l">খরচ ও শর্ত আগে বুঝে নিন</div></div>'},
+     {t:'note',delay:850,bn:'✦ অনুমোদিত প্রতিষ্ঠানে যাচাই করে সিদ্ধান্ত নিন'}
+   ]},
+   '11':{role:'উদ্যোক্তা',steps:[
+     {t:'ai',delay:600,bn:'ইন্টারনেট দুর্বল — অফলাইন মোড চালু হয়েছে।',en:'Weak internet — offline mode enabled.'},
+     {t:'ai',delay:1000,bn:'কেসটি খসড়া হিসেবে সংরক্ষণ করা হয়েছে।',en:'The case has been saved as a draft.',card:'<div class="dcard info"><div class="h">খসড়া কেস</div><div class="l">পেন্ডিং সিঙ্ক · এখনো আনুষ্ঠানিকভাবে জমা হয়নি</div></div>'},
+     {t:'ai',delay:1000,bn:'একটি সতর্কতা —',en:'A warning —',card:'<div class="dcard warn"><div class="h">⚠ পেমেন্ট যাচাই হয়নি</div><div class="l">নাগরিককে ‘জমা হয়েছে’ বলা হবে না</div></div>'},
+     {t:'ai',delay:1000,bn:'ইন্টারনেট ফিরলে আমি মনে করিয়ে দেব ও জমা সম্পূর্ণ করব।',en:'When the connection returns, I will remind you to complete submission.'},
+     {t:'note',delay:850,bn:'✦ উদ্যোক্তা অনলাইন হলে আনুষ্ঠানিকভাবে জমা দেবেন'}
+   ]}
+  };
+  var current='1';
+  var timers=[];
+  function clearAll(){ timers.forEach(clearTimeout); timers=[]; chat.innerHTML=''; }
+  function scroll(){ chat.scrollTop=chat.scrollHeight; }
+  function rmTyping(){ var t=chat.querySelector('.typing-row'); if(t) t.parentNode.removeChild(t); }
+  function play(id){
+    var sc=SC[id]; if(!sc) return; current=id;
+    if(roleEl) roleEl.textContent=sc.role;
+    clearAll();
+    var t=0;
+    sc.steps.forEach(function(s){
+      t+=s.delay;
+      timers.push(setTimeout(function(){
+        if(s.t==='typing'){
+          rmTyping();
+          var r=document.createElement('div'); r.className='row ai typing-row show';
+          r.innerHTML='<div class="typing"><span></span><span></span><span></span></div>';
+          chat.appendChild(r); scroll(); return;
+        }
+        rmTyping();
+        var r=document.createElement('div'); r.className='row '+s.t;
+        var html='<div class="bub">'+s.bn+'</div>';
+        if(s.card) html+=s.card;
+        if(s.en) html+='<div class="gloss">'+s.en+'</div>';
+        r.innerHTML=html; chat.appendChild(r); scroll();
+        requestAnimationFrame(function(){ requestAnimationFrame(function(){ r.classList.add('show'); scroll(); }); });
+      }, t));
+    });
+  }
+  var picks=Array.prototype.slice.call(slide.querySelectorAll('.uc-pick'));
+  picks.forEach(function(b){ b.addEventListener('click',function(){
+    picks.forEach(function(x){ x.classList.remove('on'); });
+    b.classList.add('on');
+    play(b.getAttribute('data-uc'));
+  }); });
+  var obs=new MutationObserver(function(){ if(slide.classList.contains('is-active')) play(current); });
+  obs.observe(slide,{attributes:true,attributeFilter:['class']});
+  if(slide.classList.contains('is-active')) play(current);
+})();
+</script>
+</body>
+</html>
